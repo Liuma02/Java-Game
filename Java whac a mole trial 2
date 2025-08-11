@@ -1,0 +1,158 @@
+import java.awt.*;
+import java.awt.event.*;
+import java.util.Random;//We are gonna use this random library to place the mole in random tiles.
+import javax.swing.*;
+
+
+public class WhacAMole {
+    //Creating the game window 
+    int boardwidth = 700;
+    int boardheight = 750;//The extra 50 is to leave some room for the text on top where we can display the score
+
+    JFrame frame = new JFrame("Mario: Whac A Mole");// The Jframe will be our window and we can give it a title
+    JLabel textLabel = new JLabel();
+    JPanel textPanel = new JPanel();//We need this panel to hold the label
+    //This will be something we have to import at the top 
+    //Lets create a constructor and within it place sum properties for the window
+    JPanel boardPanel = new JPanel(); //This is creating a panel for your game 
+    JButton[] board = new JButton[25]; //This will be our array to keep our buttons and keep track of all 9 buttons
+
+    ImageIcon moleIcon;//This adds the import allowance for the files/images in the scrs
+    ImageIcon plantIcon;
+    //creating the variables that will keep track of the moleTile
+    //and a variable that place the images on the tiles randomly
+    JButton currMoleTile;
+    JButton currPlantTile;//this will be used to keep track of which tile has the mole and which tile has the plant
+
+    Random random = new Random();//this places the mole and the plant randomly,and to do this you need a timer
+    Timer setMoleTimer;
+    Timer setPlantTimer;
+    int score = 0;
+        
+    WhacAMole() {
+        //frame.setVisible(true);
+        frame.setSize(boardwidth, boardheight);//Remember to set both this properties 
+        frame.setLocationRelativeTo(null);
+        frame.setResizable(false);//You can change this in order to set a resizable window
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
+        frame.setLayout(new BorderLayout());
+        //frame.setBackground(Color.black);
+        //frame.setBackground(Color.red);
+        /*So within our window we will have an X button 
+        and when we click it will close the window in code 22*/
+        // So now all this code does is create a window for us 
+        //Now we have to create a panel, and for the text we need a Jlabel
+        //Within our consructor lets set some properties for our text label and panel
+        textLabel.setFont(new Font("Arial", Font.PLAIN, 50));//Setting the font 
+        textLabel.setHorizontalAlignment(JLabel.CENTER);//Alighning the text to the center instead of it starting from the left
+        textLabel.setText("Score: 0");
+        textLabel.setOpaque(true);
+        //For now thats all we need for our text label.
+        //Now for the text panel
+        textPanel.setLayout(new BorderLayout());//This sets the layout
+        textPanel.add(textLabel);//This adds the text lable to the text panel
+        frame.add(textPanel, BorderLayout.NORTH);//This adds the text panel to the frame 
+        //Adding the north parameter removes the score "31" text from center to North
+        boardPanel.setLayout(new GridLayout(4, 4));
+        boardPanel.setBackground(Color.black);
+        frame.add(boardPanel);
+
+        //plantIcon = new ImageIcon(getClass().getResource("./piranha.png"));
+        //this imports the image from the src
+       // moleIcon = new ImageIcon(getClass().getResource("./monty.png"));
+       //the above code imports the entire image and not a resized one
+
+       Image plantImg = new ImageIcon(getClass().getResource("/piranha.png")).getImage();
+       plantIcon = new ImageIcon(plantImg.getScaledInstance(150, 150, java.awt.Image.SCALE_SMOOTH));
+
+       Image moleImg = new ImageIcon(getClass().getResource("/monty.png")).getImage();
+       moleIcon = new ImageIcon(moleImg.getScaledInstance(150, 150, java.awt.Image.SCALE_SMOOTH));
+       
+       score = 0;
+        for (int i = 0; i < 16 ; i++) { //This for loop creates 9 J buttons
+        JButton tile = new JButton();
+        board[i] = tile;//so the tile is a J button and I want to add this to my boardpanel
+        boardPanel.add(tile);
+        tile.setFocusable(false);//this hides the rectangle you get when selecting and image
+        //tile.setIcon(moleIcon);
+        //we need an action listener for our us to use the buttons
+        tile.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                JButton tile = (JButton)e.getSource(); // This specifies the button in this case it would be e
+                if (tile == currMoleTile){//we need a variable to keep track of our score
+                    score += 10;//this increments our score
+                    textLabel.setText("Score: " + Integer.toString(score));
+
+                }
+                else if (tile == currPlantTile) {
+                    textLabel.setText("Game Over: " + Integer.toString(score));
+                }
+
+            
+
+
+            }
+        });
+
+        tile.setBackground(Color.gray);
+        textLabel.setBackground(Color.gray);//sets the color you prefer to have 
+        //now we have to load images of the plant and the mole and insert them into the grids
+        //But we import it into the frame above
+        
+
+
+
+        }
+        setMoleTimer = new Timer(2000, new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (currMoleTile !=null){//making a check statement
+                    currMoleTile.setIcon(null);//if there is a jbutton assigned to null we need to clear it
+                    currMoleTile = null;
+
+                }
+                int num = random.nextInt(15);//this gives us a random number from 0-15
+                JButton tile = board[num];
+
+                //we need a check that will see an empty tile
+                //if tile is occupied by cuurent plant tile, skip this tile
+                if (currMoleTile == tile)return;
+
+
+                currMoleTile = tile;// set tile to mole
+                currMoleTile.setIcon(moleIcon);
+            }
+
+        });
+
+        setPlantTimer = new Timer(1500, new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (currPlantTile !=null){//making a check statement
+                    currPlantTile.setIcon(null);//if there is a jbutton assigned to null we need to clear it
+                    currPlantTile = null;
+
+                }
+                int num = random.nextInt(15);//this gives us a random number from 0-15
+                JButton tile = board[num];
+
+                if (currPlantTile == tile)return;
+
+                currPlantTile = tile;
+                currPlantTile.setIcon(plantIcon);
+            }});
+    
+        //we have set the timer and now we have to start it
+        setMoleTimer.start();
+        frame.setVisible(true);
+        setPlantTimer.start();
+        frame.setVisible(true);
+        //By setting this at the end we ensure that all components of the program are loaded first before the frame is visible
+
+
+
+        
+    }
+
+
+
+}
+
